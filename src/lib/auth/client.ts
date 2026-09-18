@@ -1,8 +1,5 @@
-// Thin client for the auth API — now a TypeScript rewrite of the old Go
-// backend, living in this same Next.js app (see src/app/api/auth/), so
-// there's no cross-origin/proxy concern at all: these routes are always
-// same-origin by construction. (backend/ is kept around unused, in case of
-// a rollback — see next.config.ts's still-present /api/go/* rewrite.)
+// Thin client for the auth API, served by src/app/api/auth/ — always
+// same-origin by construction, no cross-origin/proxy concern at all.
 
 export interface AuthUser {
   id: string;

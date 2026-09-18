@@ -4,8 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:backend": "cd backend && go run ./cmd/server",
-    "dev:all": "concurrently -k -n GO,NEXT -c blue,green \"npm:dev:backend\" \"npm:dev\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -34,7 +32,6 @@
     "@types/node": "^26.5.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "concurrently": "^10.0.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "patch-package": "^8.0.1",
