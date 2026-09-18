@@ -34,7 +34,6 @@ yarn-error.log*
 # they're the setup docs), only real env files with actual secrets are ignored.
 .env*
 !.env.example
-!backend/.env.example
 
 # vercel
 .vercel
