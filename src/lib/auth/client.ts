@@ -1,5 +1,8 @@
-// Thin client for the Go auth backend, reached through the /api/go/* rewrite
-// in next.config.ts (see backend/) so the session cookie stays same-origin.
+// Thin client for the auth API — now a TypeScript rewrite of the old Go
+// backend, living in this same Next.js app (see src/app/api/auth/), so
+// there's no cross-origin/proxy concern at all: these routes are always
+// same-origin by construction. (backend/ is kept around unused, in case of
+// a rollback — see next.config.ts's still-present /api/go/* rewrite.)
 
 export interface AuthUser {
   id: string;
@@ -21,13 +24,13 @@ async function parseJsonOrThrow<T>(res: Response): Promise<T> {
 }
 
 export async function checkAuth(): Promise<AuthCheckResult> {
-  const res = await fetch("/api/go/auth/me", { credentials: "same-origin" });
+  const res = await fetch("/api/auth/me", { credentials: "same-origin" });
   if (!res.ok) return { authenticated: false };
   return (await res.json()) as AuthCheckResult;
 }
 
 export async function login(email: string, password: string): Promise<AuthUser> {
-  const res = await fetch("/api/go/auth/login", {
+  const res = await fetch("/api/auth/login", {
     method: "POST",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
@@ -38,7 +41,7 @@ export async function login(email: string, password: string): Promise<AuthUser> 
 }
 
 export async function signup(email: string, password: string, confirmPassword: string): Promise<AuthUser> {
-  const res = await fetch("/api/go/auth/signup", {
+  const res = await fetch("/api/auth/signup", {
     method: "POST",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
@@ -49,5 +52,5 @@ export async function signup(email: string, password: string, confirmPassword: s
 }
 
 export async function logout(): Promise<void> {
-  await fetch("/api/go/auth/logout", { method: "POST", credentials: "same-origin" });
+  await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
 }
