@@ -1,0 +1,50 @@
+diff --git a/node_modules/@ffmpeg/ffmpeg/dist/esm/classes.js b/node_modules/@ffmpeg/ffmpeg/dist/esm/classes.js
+index fae4753..3620320 100644
+--- a/node_modules/@ffmpeg/ffmpeg/dist/esm/classes.js
++++ b/node_modules/@ffmpeg/ffmpeg/dist/esm/classes.js
+@@ -101,15 +101,18 @@ export class FFmpeg {
+      */
+     load = ({ classWorkerURL, ...config } = {}, { signal } = {}) => {
+         if (!this.#worker) {
+-            this.#worker = classWorkerURL ?
+-                new Worker(new URL(classWorkerURL, import.meta.url), {
+-                    type: "module",
+-                }) :
+-                // We need to duplicated the code here to enable webpack
+-                // to bundle worekr.js here.
+-                new Worker(new URL("./worker.js", import.meta.url), {
+-                    type: "module",
+-                });
++            // Upstream branches here on `classWorkerURL` to optionally load a
++            // caller-supplied worker script via `new Worker(new URL(classWorkerURL, import.meta.url))`.
++            // That's a non-literal Worker URL, which Turbopack cannot statically
++            // resolve — merely having it in the same function as the static
++            // "./worker.js" call below makes Turbopack replace the whole thing
++            // with a "Cannot find module as expression is too dynamic" runtime
++            // throw, even on the branch that's never taken. We don't use
++            // classWorkerURL, so this keeps only the statically-analyzable path.
++            // See patches/@ffmpeg+ffmpeg+0.12.15.patch.
++            this.#worker = new Worker(new URL("./worker.js", import.meta.url), {
++                type: "module",
++            });
+             this.#registerHandlers();
+         }
+         return this.#send({
+diff --git a/node_modules/@ffmpeg/ffmpeg/dist/esm/worker.js b/node_modules/@ffmpeg/ffmpeg/dist/esm/worker.js
+index cca2a61..b3da67a 100644
+--- a/node_modules/@ffmpeg/ffmpeg/dist/esm/worker.js
++++ b/node_modules/@ffmpeg/ffmpeg/dist/esm/worker.js
+@@ -16,8 +16,12 @@ const load = async ({ coreURL: _coreURL, wasmURL: _wasmURL, workerURL: _workerUR
+         if (!_coreURL || _coreURL === CORE_URL)
+             _coreURL = CORE_URL.replace('/umd/', '/esm/');
+         // when web worker type is `module`.
++        // _coreURL is a fully dynamic (often blob:) URL resolved at runtime —
++        // there is no literal path for a bundler to analyze here, so Turbopack
++        // must be told to leave this import alone rather than trying (and
++        // failing) to statically resolve it. See patches/@ffmpeg+ffmpeg+0.12.15.patch.
+         self.createFFmpegCore = (await import(
+-        /* @vite-ignore */ _coreURL)).default;
++        /* @vite-ignore */ /* turbopackIgnore: true */ _coreURL)).default;
+         if (!self.createFFmpegCore) {
+             throw ERROR_IMPORT_FAILURE;
+         }
