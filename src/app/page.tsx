@@ -4,6 +4,8 @@ import Image from "next/image";
 import UploadFlow from "@/components/upload/UploadFlow";
 import MyProjectsButton from "@/components/dashboard/MyProjectsButton";
 import Reveal from "@/components/landing/Reveal";
+import MobileNav from "@/components/landing/MobileNav";
+import ScrollStepsProgress from "@/components/landing/ScrollStepsProgress";
 
 const TITLE = "Bloop Studio — #1 AI Subtitles Generator with Person Masking";
 const DESCRIPTION =
@@ -56,13 +58,6 @@ const STRUCTURED_DATA = {
 // editorial feel instead of a flat drop shadow.
 const CARD_SHADOW =
   "shadow-[0_32px_32px_rgba(5,20,51,0.05),0_12px_12px_rgba(0,0,0,0.05),0_1px_1px_rgba(0,0,0,0.05)]";
-
-const HERO_BULLETS = [
-  "Word-level sync & auto emphasis sizing",
-  "True behind-the-person occlusion, not just a text overlay",
-  "17+ bold, ready-made caption themes",
-  "Runs almost entirely in your browser — nothing to install",
-];
 
 const STEPS: { n: string; title: string; body: string; visual: React.ReactNode }[] = [
   {
@@ -188,6 +183,7 @@ export default function LandingPage() {
             >
               Get started
             </a>
+            <MobileNav />
           </div>
         </nav>
       </div>
@@ -230,15 +226,6 @@ export default function LandingPage() {
               See how it works
             </a>
           </div>
-
-          <ul className="mt-9 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            {HERO_BULLETS.map((b) => (
-              <li key={b} className="flex items-start gap-2.5 text-sm text-neutral-600">
-                <CheckIcon />
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div id="upload" className="scroll-mt-24">
@@ -269,9 +256,45 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <p className="mt-8 text-center text-xs text-neutral-400 sm:mt-16">
-            You&apos;ll only be asked to sign in when you export.
-          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-6 pb-16">
+        <div className="flex flex-col items-center gap-8 rounded-3xl border border-neutral-200 bg-white p-6 sm:flex-row sm:gap-10 sm:p-8">
+          <div className="w-[220px] shrink-0 sm:w-[260px]">
+            <div className={`overflow-hidden rounded-2xl border border-neutral-200 ${CARD_SHADOW}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- animated GIF, next/image re-encodes and drops the animation */}
+              <img src="/demo/hero-demo.gif" alt="Concept preview — placeholder, local only" className="block h-auto w-full" />
+            </div>
+            <p className="mt-2 text-center text-[11px] text-neutral-400"></p>
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <p className="font-gabarito text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+              <span className="text-neutral-900">Sit relax —</span>{" "}
+              <span className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-cyan-500 bg-clip-text text-transparent">
+                we auto-detect bheind you
+              </span>{" "}
+              <span className="text-neutral-900">and add subtitles in one click :)</span>
+            </p>
+            <ul className="mt-5 grid grid-cols-1 gap-2.5 text-sm text-neutral-600 sm:grid-cols-2">
+              <li className="flex items-start gap-2">
+                <CheckIcon />
+                <span>No editing skills, no timeline to fiddle with</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon />
+                <span>Word-level sync, done automatically</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon />
+                <span>17+ ready-made caption themes to pick from</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon />
+                <span>Runs almost entirely in your browser</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -312,29 +335,19 @@ export default function LandingPage() {
             <p className="mt-3 text-sm text-neutral-500 sm:text-base">No timeline scrubbing, no manual keyframes.</p>
           </div>
         </Reveal>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <Reveal key={s.n} delay={i * 150} direction="up">
-              <div className={`overflow-hidden rounded-2xl border border-[#E1E2E5] bg-white ${CARD_SHADOW}`}>
-                <div className="relative h-40">
-                  {s.visual}
-                  <span className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-neutral-900 shadow">
-                    {s.n}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <h3 className="text-sm font-semibold text-neutral-900">{s.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-neutral-500">{s.body}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        <ScrollStepsProgress steps={STEPS} />
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 pb-20 text-center sm:pb-28">
+      <section className="relative mx-auto w-full max-w-6xl px-6 pb-20 text-center sm:pb-28">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-10 -z-10 h-72 opacity-60"
+          style={{ background: "radial-gradient(ellipse 50% 100% at 50% 0%, rgba(6,182,212,0.12), transparent)" }}
+        />
         <Reveal>
-          <h2 className="font-gabarito text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-violet-700">
+            ✦ Frame-accurate editing
+          </span>
+          <h2 className="mt-4 font-gabarito text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
             Fine-tune every word, frame by frame
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-neutral-500 sm:text-base">
@@ -343,14 +356,22 @@ export default function LandingPage() {
           </p>
         </Reveal>
         <Reveal delay={150} direction="left">
-          <div className={`mx-auto mt-10 max-w-3xl overflow-hidden rounded-2xl border border-[#E1E2E5] bg-neutral-950 ${CARD_SHADOW}`}>
-            <Image
-              src="/screenshots/editor-timeline-v3.png"
-              alt="Close-up of Bloop Studio's timeline with synced caption segments over an audio waveform"
-              width={734}
-              height={180}
-              className="h-auto w-full"
-            />
+          <div className={`mx-auto mt-10 max-w-3xl rounded-2xl border border-[#E1E2E5] bg-white p-2 ${CARD_SHADOW} sm:p-3`}>
+            <div className="mb-2 flex items-center gap-1.5 px-1">
+              <span className="h-2.5 w-2.5 rounded-full bg-neutral-200" />
+              <span className="h-2.5 w-2.5 rounded-full bg-neutral-200" />
+              <span className="h-2.5 w-2.5 rounded-full bg-neutral-200" />
+              <span className="ml-2 text-[11px] font-medium text-neutral-400">Timeline — synced to the waveform</span>
+            </div>
+            <div className="overflow-hidden rounded-xl">
+              <Image
+                src="/screenshots/editor-timeline-v3.png"
+                alt="Close-up of Bloop Studio's timeline with synced caption segments over an audio waveform"
+                width={734}
+                height={180}
+                className="h-auto w-full"
+              />
+            </div>
           </div>
         </Reveal>
         <Reveal delay={300}>
@@ -364,8 +385,21 @@ export default function LandingPage() {
         </Reveal>
       </section>
 
-      <section id="features" className="scroll-mt-20 bg-neutral-950 py-20 sm:py-28">
-        <div className="mx-auto w-full max-w-6xl px-6">
+      <section id="features" className="relative scroll-mt-20 overflow-hidden bg-neutral-950 py-20 sm:py-28">
+        {/* Faint dot-grid texture — the literal "depth" cue behind the
+            section that's actually about depth, instead of a flat black bg. */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.15]"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-96 opacity-40"
+          style={{ background: "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(124,58,237,0.25), transparent)" }}
+        />
+        <div className="relative mx-auto w-full max-w-6xl px-6">
           <Reveal>
             <div className="mb-12 text-center">
               <h2 className="font-gabarito text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -390,12 +424,15 @@ export default function LandingPage() {
                   }`}
                   style={{ "--glow": f.glow } as React.CSSProperties}
                 >
+                  {/* Always-on color strip — gives every card a quiet hit of
+                      its own accent at rest, not just a flat gray box until hovered. */}
+                  <div className={`absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r opacity-70 ${f.accent}`} />
                   {/* Soft corner glow in the feature's own accent — the thing
                       that stops every card from reading as the same flat box. */}
                   <div
                     className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-30 ${f.accent}`}
                   />
-                  <span className="absolute right-4 top-4 font-gabarito text-xs font-semibold text-white/10 transition-colors duration-300 group-hover:text-white/25">
+                  <span className="absolute right-4 top-4 rounded-full bg-white/5 px-2 py-0.5 font-gabarito text-[10px] font-semibold text-white/30 transition-colors duration-300 group-hover:text-white/50">
                     {String(i + 1).padStart(2, "0")}
                   </span>
 
@@ -416,8 +453,23 @@ export default function LandingPage() {
                   </p>
 
                   {f.large && (
-                    <div className="relative mt-6 flex flex-1 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/30 py-8">
+                    <div className="relative mt-6 flex flex-1 flex-col items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/30 py-10">
+                      <div
+                        className="pointer-events-none absolute inset-0 opacity-20"
+                        style={{
+                          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)",
+                          backgroundSize: "20px 20px",
+                        }}
+                      />
                       <DepthDemo />
+                      <div className="relative mt-5 flex items-center gap-4 text-[11px] font-medium uppercase tracking-wide text-neutral-500">
+                        <span className="flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-violet-400" /> behind
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" /> in front
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -482,7 +534,32 @@ export default function LandingPage() {
         </Reveal>
       </section>
 
-      <footer className="border-t border-neutral-200">
+      <section className="mx-auto w-full max-w-6xl px-6 pb-20">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-cyan-600 px-8 py-14 text-center shadow-[0_24px_48px_-12px_rgba(124,58,237,0.4)] sm:py-16">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+          <h2 className="relative font-gabarito text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            Give your captions some depth.
+          </h2>
+          <p className="relative mx-auto mt-3 max-w-md text-sm text-white/80 sm:text-base">
+            No account needed to try it. Upload a clip and see it for yourself.
+          </p>
+          <a
+            href="#upload"
+            className="relative mt-7 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 shadow-lg transition-transform hover:scale-105"
+          >
+            <UploadGlyphIcon />
+            Upload a video
+          </a>
+        </div>
+      </section>
+
+      <footer className="border-t border-neutral-200 bg-neutral-50">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-8 px-6 py-12 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-2">
             <Image src="/logo/bloop-wordmark-black.png" alt="Bloop Studio" width={951} height={408} className="h-6 w-auto" />
@@ -495,7 +572,7 @@ export default function LandingPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Product</p>
             <ul className="mt-3 space-y-2 text-sm text-neutral-500">
               <li>
-                <a href="#upload" className="hover:text-neutral-900">
+                <a href="#upload" className="transition-colors hover:text-neutral-900">
                   New project
                 </a>
               </li>
@@ -503,7 +580,7 @@ export default function LandingPage() {
                 <MyProjectsButton className="text-sm text-neutral-500 transition-colors hover:text-neutral-900 disabled:opacity-50" />
               </li>
               <li>
-                <Link href="/login" className="hover:text-neutral-900">
+                <Link href="/login" className="transition-colors hover:text-neutral-900">
                   Log in
                 </Link>
               </li>
@@ -513,9 +590,15 @@ export default function LandingPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Built different</p>
             <ul className="mt-3 space-y-2 text-sm text-neutral-500">
-              <li>Client-side rendering</li>
-              <li>Depth-aware occlusion</li>
-              <li>No install required</li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" /> Client-side rendering
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-fuchsia-400" /> Depth-aware occlusion
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" /> No install required
+              </li>
             </ul>
           </div>
         </div>
@@ -559,11 +642,12 @@ function NavLink({ href, shine, children }: { href: string; shine?: boolean; chi
  * paragraph asking you to imagine it. */
 function DepthDemo() {
   return (
-    <div className="relative flex h-16 items-center justify-center sm:h-20">
-      <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-neutral-600 to-neutral-800 shadow-[0_8px_20px_rgba(0,0,0,0.4)] sm:h-16 sm:w-16">
+    <div className="relative flex h-20 items-center justify-center sm:h-24">
+      <div className="pointer-events-none absolute h-24 w-24 rounded-full bg-violet-500/20 blur-2xl sm:h-28 sm:w-28" />
+      <div className="relative z-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-neutral-600 to-neutral-800 shadow-[0_8px_20px_rgba(0,0,0,0.4)] sm:h-20 sm:w-20">
         <PersonSilhouetteIcon />
       </div>
-      <span className="depth-demo-word absolute font-gabarito text-base font-bold tracking-wide text-white sm:text-lg">
+      <span className="depth-demo-word absolute bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text font-gabarito text-lg font-bold tracking-wide text-transparent sm:text-xl">
         depth.
       </span>
     </div>
