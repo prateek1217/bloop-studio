@@ -44,7 +44,7 @@ const luckiestGuy = Luckiest_Guy({ variable: "--font-luckiest-guy", subsets: ["l
 // env vars once the project has a domain); VERCEL_URL is the fallback Vercel
 // always provides on preview/production deploys, and localhost covers dev.
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
+  process.env.NEXT_PUBLIC_SITE_URL ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
 export const metadata: Metadata = {
