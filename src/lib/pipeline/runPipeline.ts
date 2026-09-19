@@ -44,7 +44,7 @@ export async function runProcessingPipeline(
       durationSec: metadata.duration,
       width: metadata.width,
       height: metadata.height,
-      fps: 30,
+      fps: metadata.fps,
       stage: "uploaded",
       language,
     },
@@ -146,17 +146,82 @@ export async function runProcessingPipeline(
   }
 }
 
-function readVideoMetadata(file: File): Promise<{ duration: number; width: number; height: number }> {
+function readVideoMetadata(file: File): Promise<{ duration: number; width: number; height: number; fps: number }> {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
     video.preload = "metadata";
+    video.muted = true;
     video.src = URL.createObjectURL(file);
-    video.onloadedmetadata = () => {
-      resolve({ duration: video.duration, width: video.videoWidth, height: video.videoHeight });
+    video.onloadedmetadata = async () => {
+      const { duration, videoWidth: width, videoHeight: height } = video;
+      const fps = await detectFps(video);
       URL.revokeObjectURL(video.src);
+      resolve({ duration, width, height, fps });
     };
     video.onerror = () => reject(new Error("Could not read video metadata"));
   });
+}
+
+/** There's no direct "give me this video's fps" browser API, so this plays
+ * a few frames muted and measures the real gap between their presentation
+ * timestamps via requestVideoFrameCallback — the same API exportVideo.ts
+ * already relies on. Getting this right matters: exporting at a fixed 30fps
+ * regardless of the source's real rate is exactly what causes visible
+ * judder on a 24/25/60fps upload. Falls back to 30 if rVFC isn't supported
+ * (old Firefox/Safari) or playback doesn't cooperate. */
+function detectFps(video: HTMLVideoElement): Promise<number> {
+  const FALLBACK_FPS = 30;
+  const SAMPLE_COUNT = 12;
+
+  type VideoFrameMetadata = { mediaTime: number };
+  type VFCVideo = HTMLVideoElement & {
+    requestVideoFrameCallback?: (cb: (now: number, meta: VideoFrameMetadata) => void) => number;
+  };
+  const vfcVideo = video as VFCVideo;
+  if (typeof vfcVideo.requestVideoFrameCallback !== "function") {
+    return Promise.resolve(FALLBACK_FPS);
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const settle = (fps: number) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      video.pause();
+      resolve(fps);
+    };
+    // Backstop in case `play()` resolves but rVFC never actually fires (e.g.
+    // a browser quirk with a detached, never-appended-to-DOM video element) —
+    // without this, a single bad case here would hang the whole upload.
+    const timeout = setTimeout(() => settle(FALLBACK_FPS), 1500);
+
+    const mediaTimes: number[] = [];
+    function onFrame(_now: number, meta: VideoFrameMetadata) {
+      mediaTimes.push(meta.mediaTime);
+      if (mediaTimes.length < SAMPLE_COUNT) {
+        vfcVideo.requestVideoFrameCallback!(onFrame);
+        return;
+      }
+      const deltas: number[] = [];
+      for (let i = 1; i < mediaTimes.length; i++) deltas.push(mediaTimes[i] - mediaTimes[i - 1]);
+      const avgDelta = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+      settle(avgDelta > 0 ? snapToCommonFps(1 / avgDelta) : FALLBACK_FPS);
+    }
+
+    video
+      .play()
+      .then(() => vfcVideo.requestVideoFrameCallback!(onFrame))
+      .catch(() => settle(FALLBACK_FPS));
+  });
+}
+
+/** Real recording frame rates cluster around a handful of standard values;
+ * snapping to the nearest one avoids storing/exporting at a noisy measured
+ * value like "29.83" from timing jitter in the few samples above. */
+function snapToCommonFps(raw: number): number {
+  const COMMON_FPS = [23.976, 24, 25, 29.97, 30, 50, 59.94, 60];
+  return COMMON_FPS.reduce((best, c) => (Math.abs(c - raw) < Math.abs(best - raw) ? c : best), COMMON_FPS[0]);
 }
 
 async function createOffscreenVideo(file: File): Promise<HTMLVideoElement> {

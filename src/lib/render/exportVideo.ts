@@ -105,7 +105,15 @@ export async function exportVideo(opts: ExportOptions): Promise<Blob> {
       onProgress?.("encoding", safeProgress);
     });
 
-    await ffmpeg.exec([
+    // Nothing about this pipeline needs to touch the audio at all, so copy
+    // the source's original audio bitstream byte-for-byte rather than
+    // decoding and re-encoding it — that re-encode was a real, avoidable
+    // quality loss the old MediaRecorder-based export couldn't skip (it had
+    // to capture audio live), but this direct-ffmpeg approach can. Not every
+    // source codec can be copied straight into an MP4 container (e.g. Opus
+    // from a WebM upload), so fall back to re-encoding only if the copy
+    // attempt itself fails.
+    const buildArgs = (audioCodecArgs: string[]) => [
       "-framerate",
       String(fps),
       "-i",
@@ -128,15 +136,18 @@ export async function exportVideo(opts: ExportOptions): Promise<Blob> {
       "18",
       "-pix_fmt",
       "yuv420p",
-      "-c:a",
-      "aac",
-      "-b:a",
-      "256k",
+      ...audioCodecArgs,
       "-shortest",
       "-movflags",
       "+faststart",
       "output.mp4",
-    ]);
+    ];
+
+    const copyExitCode = await ffmpeg.exec(buildArgs(["-c:a", "copy"]));
+    if (copyExitCode !== 0) {
+      await ffmpeg.deleteFile("output.mp4").catch(() => {});
+      await ffmpeg.exec(buildArgs(["-c:a", "aac", "-b:a", "320k"]));
+    }
 
     const data = await ffmpeg.readFile("output.mp4");
     return new Blob([new Uint8Array(data as Uint8Array)], { type: "video/mp4" });
