@@ -5,7 +5,9 @@ import UploadFlow from "@/components/upload/UploadFlow";
 import MyProjectsButton from "@/components/dashboard/MyProjectsButton";
 import Reveal from "@/components/landing/Reveal";
 import MobileNav from "@/components/landing/MobileNav";
-import ScrollStepsProgress from "@/components/landing/ScrollStepsProgress";
+import ScrollyHowItWorks from "@/components/landing/ScrollyHowItWorks";
+import TypewriterHero from "@/components/landing/TypewriterHero";
+import LeadCaptureForm from "@/components/landing/LeadCaptureForm";
 
 const TITLE = "Bloop Studio — #1 AI Subtitles Generator with Person Masking";
 const DESCRIPTION =
@@ -59,6 +61,52 @@ const STRUCTURED_DATA = {
 const CARD_SHADOW =
   "shadow-[0_32px_32px_rgba(5,20,51,0.05),0_12px_12px_rgba(0,0,0,0.05),0_1px_1px_rgba(0,0,0,0.05)]";
 
+const HERO_SUBLINE_SEGMENTS = [
+  { text: "Captions with " },
+  { text: "real depth", className: "font-semibold text-neutral-800" },
+  { text: ", not a flat bar. Get subtitles that read the frame — " },
+  { text: "sliding behind your subject", className: "font-semibold text-violet-600" },
+  { text: " or " },
+  { text: "dodging their face", className: "font-semibold text-fuchsia-600" },
+  { text: " — automatically." },
+];
+
+const STICKY_NOTES: { text: string; bg: string; iconBg: string; icon: React.ReactNode; tiltClass: string }[] = [
+  {
+    text: "No editing skills, no timeline to fiddle with",
+    bg: "bg-violet-100",
+    iconBg: "bg-gradient-to-br from-violet-500 to-fuchsia-500",
+    icon: <WandIcon />,
+    tiltClass: "rotate-[-3deg]",
+  },
+  {
+    text: "Word-level sync, done automatically",
+    bg: "bg-cyan-100",
+    iconBg: "bg-gradient-to-br from-cyan-500 to-blue-500",
+    icon: (
+      <span className="font-black leading-none text-white">
+        <span className="text-[10px]">A</span>
+        <span className="text-sm">a</span>
+      </span>
+    ),
+    tiltClass: "rotate-[2deg]",
+  },
+  {
+    text: "17+ ready-made caption themes to pick from",
+    bg: "bg-rose-100",
+    iconBg: "bg-gradient-to-br from-pink-500 to-rose-500",
+    icon: <DotsIcon />,
+    tiltClass: "rotate-[-2deg]",
+  },
+  {
+    text: "Runs almost entirely in your browser",
+    bg: "bg-amber-100",
+    iconBg: "bg-gradient-to-br from-amber-500 to-orange-500",
+    icon: <BrowserIcon />,
+    tiltClass: "rotate-[3deg]",
+  },
+];
+
 const STEPS: { n: string; title: string; body: string; visual: React.ReactNode }[] = [
   {
     n: "1",
@@ -70,7 +118,14 @@ const STEPS: { n: string; title: string; body: string; visual: React.ReactNode }
     n: "2",
     title: "AI reads the frame",
     body: "We segment the person pixel-by-pixel and score every word for emphasis based on loudness and text cues.",
-    visual: <StepVisualScan />,
+    visual: (
+      // eslint-disable-next-line @next/next/no-img-element -- animated GIF, next/image re-encodes and drops the animation
+      <img
+        src="/demo/step2-frame-scan.gif"
+        alt="AI reading the frame to segment the person from the background"
+        className="block h-full w-full object-cover"
+      />
+    ),
   },
   {
     n: "3",
@@ -206,9 +261,8 @@ export default function LandingPage() {
               with Person Masking
             </span>
           </h1>
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-neutral-500 sm:text-lg">
-            Captions with real depth, not a flat bar. Get subtitles that read the frame — sliding
-            behind your subject or dodging their face — automatically.
+          <p className="hero-subline mt-6 max-w-lg text-base leading-relaxed text-neutral-500 sm:text-lg">
+            <TypewriterHero segments={HERO_SUBLINE_SEGMENTS} />
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -276,24 +330,18 @@ export default function LandingPage() {
               </span>{" "}
               <span className="text-neutral-900">and add subtitles in one click :)</span>
             </p>
-            <ul className="mt-5 grid grid-cols-1 gap-2.5 text-sm text-neutral-600 sm:grid-cols-2">
-              <li className="flex items-start gap-2">
-                <CheckIcon />
-                <span>No editing skills, no timeline to fiddle with</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckIcon />
-                <span>Word-level sync, done automatically</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckIcon />
-                <span>17+ ready-made caption themes to pick from</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckIcon />
-                <span>Runs almost entirely in your browser</span>
-              </li>
-            </ul>
+            <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {STICKY_NOTES.map((note) => (
+                <div
+                  key={note.text}
+                  className={`group relative rounded-lg p-4 text-left shadow-[0_6px_16px_-4px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:rotate-0 hover:scale-105 ${note.tiltClass} ${note.bg}`}
+                >
+                  <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-white/70 shadow-sm" />
+                  <span className={`flex h-8 w-8 items-center justify-center rounded-full ${note.iconBg}`}>{note.icon}</span>
+                  <p className="mt-2.5 text-sm font-medium leading-snug text-neutral-800">{note.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -335,7 +383,7 @@ export default function LandingPage() {
             <p className="mt-3 text-sm text-neutral-500 sm:text-base">No timeline scrubbing, no manual keyframes.</p>
           </div>
         </Reveal>
-        <ScrollStepsProgress steps={STEPS} />
+        <ScrollyHowItWorks steps={STEPS} />
       </section>
 
       <section className="relative mx-auto w-full max-w-6xl px-6 pb-20 text-center sm:pb-28">
@@ -534,62 +582,43 @@ export default function LandingPage() {
         </Reveal>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 pb-20">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-cyan-600 px-8 py-14 text-center shadow-[0_24px_48px_-12px_rgba(124,58,237,0.4)] sm:py-16">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-            }}
-          />
-          <h2 className="relative font-gabarito text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            Give your captions some depth.
-          </h2>
-          <p className="relative mx-auto mt-3 max-w-md text-sm text-white/80 sm:text-base">
-            No account needed to try it. Upload a clip and see it for yourself.
-          </p>
-          <a
-            href="#upload"
-            className="relative mt-7 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 shadow-lg transition-transform hover:scale-105"
-          >
-            <UploadGlyphIcon />
-            Upload a video
-          </a>
-        </div>
-      </section>
-
       <footer className="border-t border-neutral-200 bg-neutral-50">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-8 px-6 py-12 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-2">
             <Image src="/logo/bloop-wordmark-black.png" alt="Bloop Studio" width={951} height={408} className="h-6 w-auto" />
-            <p className="mt-3 max-w-xs text-xs leading-relaxed text-neutral-500">
+            <p className="mt-3 max-w-xs text-xs leading-relaxed text-neutral-900">
               Your video never leaves your device except as audio, sent only for transcription.
             </p>
+            <LeadCaptureForm />
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Product</p>
-            <ul className="mt-3 space-y-2 text-sm text-neutral-500">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-900">Product</p>
+            <ul className="mt-3 space-y-2 text-sm text-neutral-900">
               <li>
-                <a href="#upload" className="transition-colors hover:text-neutral-900">
+                <a href="#upload" className="transition-colors hover:text-violet-600">
                   New project
                 </a>
               </li>
               <li>
-                <MyProjectsButton className="text-sm text-neutral-500 transition-colors hover:text-neutral-900 disabled:opacity-50" />
+                <MyProjectsButton className="text-sm text-neutral-900 transition-colors hover:text-violet-600 disabled:opacity-50" />
               </li>
               <li>
-                <Link href="/login" className="transition-colors hover:text-neutral-900">
+                <Link href="/login" className="transition-colors hover:text-violet-600">
                   Log in
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="transition-colors hover:text-violet-600">
+                  Privacy Policy
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Built different</p>
-            <ul className="mt-3 space-y-2 text-sm text-neutral-500">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-900">Built different</p>
+            <ul className="mt-3 space-y-2 text-sm text-neutral-900">
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" /> Client-side rendering
               </li>
@@ -602,7 +631,7 @@ export default function LandingPage() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-neutral-200 px-6 py-6 text-center text-xs text-neutral-400">
+        <div className="border-t border-neutral-200 px-6 py-6 text-center text-xs text-neutral-900">
           © {new Date().getFullYear()} Bloop Studio
         </div>
       </footer>
@@ -617,7 +646,7 @@ function NavLink({ href, shine, children }: { href: string; shine?: boolean; chi
   return (
     <a
       href={href}
-      className="group relative rounded-full px-3.5 py-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+      className="group relative rounded-full px-3.5 py-1.5 text-sm text-neutral-900 transition-colors hover:text-violet-600"
     >
       <span
         className={`absolute inset-0 rounded-full transition-all duration-200 ease-out ${
@@ -665,28 +694,18 @@ function PersonSilhouetteIcon() {
 
 function StepVisualUpload() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200">
-      <div className="flex h-16 w-24 flex-col items-center justify-center rounded-lg border border-neutral-300 bg-white shadow-sm">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500">
-          <PlayGlyphIcon />
+    <a
+      href="#upload"
+      className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 p-6 sm:p-10"
+    >
+      <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-neutral-300 bg-white/70 transition-colors hover:border-violet-400 hover:bg-white">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white shadow-lg sm:h-14 sm:w-14">
+          <UploadGlyphIcon />
         </span>
+        <p className="text-sm font-semibold text-neutral-700 sm:text-base">Drop your video here</p>
+        <p className="text-xs text-neutral-400">or click to browse — MP4, MOV, WebM</p>
       </div>
-    </div>
-  );
-}
-
-function StepVisualScan() {
-  return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-gradient-to-br from-violet-600 to-blue-600">
-      <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="8.5" r="3.5" stroke="white" strokeWidth="1.4" opacity="0.9" />
-        <path d="M5.5 19c1-3.5 3.8-5.5 6.5-5.5s5.5 2 6.5 5.5" stroke="white" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
-      </svg>
-      <span className="absolute left-1/4 top-1/4 h-4 w-4 rounded-tl border-l-2 border-t-2 border-cyan-300" />
-      <span className="absolute right-1/4 top-1/4 h-4 w-4 rounded-tr border-r-2 border-t-2 border-cyan-300" />
-      <span className="absolute bottom-1/4 left-1/4 h-4 w-4 rounded-bl border-b-2 border-l-2 border-cyan-300" />
-      <span className="absolute bottom-1/4 right-1/4 h-4 w-4 rounded-br border-b-2 border-r-2 border-cyan-300" />
-    </div>
+    </a>
   );
 }
 
@@ -703,14 +722,6 @@ function UploadGlyphIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
       <path d="M12 16V4M7 9l5-5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function PlayGlyphIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-      <path d="M8 5v14l11-7L8 5z" />
     </svg>
   );
 }
@@ -773,6 +784,27 @@ function LockIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
       <rect x="5" y="11" width="14" height="9" rx="2" stroke="white" strokeWidth="1.6" />
       <path d="M8 11V7a4 4 0 018 0v4" stroke="white" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function WandIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M4 20L15 9" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M17 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="white" />
+      <path d="M6 13l.6 1.4L8 15l-1.4.6L6 17l-.6-1.4L4 15l1.4-.6L6 13z" fill="white" />
+    </svg>
+  );
+}
+
+function BrowserIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="4" width="18" height="16" rx="2" stroke="white" strokeWidth="1.6" />
+      <path d="M3 8.5h18" stroke="white" strokeWidth="1.6" />
+      <circle cx="6" cy="6.25" r="0.75" fill="white" />
+      <circle cx="8.5" cy="6.25" r="0.75" fill="white" />
     </svg>
   );
 }

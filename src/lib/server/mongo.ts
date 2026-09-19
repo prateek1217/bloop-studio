@@ -29,3 +29,16 @@ export async function usersCollection() {
   const { mongoDbName } = getAuthConfig();
   return client.db(mongoDbName).collection<UserDoc>("users");
 }
+
+export interface LeadDoc {
+  _id?: ObjectId;
+  email: string;
+  message: string;
+  createdAt: Date;
+}
+
+export async function leadsCollection() {
+  const client = await getClientPromise();
+  const { mongoDbName } = getAuthConfig();
+  return client.db(mongoDbName).collection<LeadDoc>("leads");
+}
