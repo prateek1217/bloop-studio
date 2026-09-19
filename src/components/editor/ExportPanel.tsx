@@ -7,17 +7,30 @@ import { getTheme, applyThemeOverrides } from "@/lib/themes/themes";
 import { useAuthGate } from "@/lib/auth/useAuthGate";
 import AuthRequiredModal from "@/components/auth/AuthRequiredModal";
 
+type ExportPhase = "idle" | "recording" | "encoding" | "done" | "error";
+
 interface Props {
   project: Project;
   videoRef: React.RefObject<HTMLVideoElement | null>;
+  /** Reports recording/encoding phases so the editor page can block
+   * interaction elsewhere — export re-plays and records this exact video
+   * element in real time, so a seek or theme change mid-export would corrupt
+   * the capture, not just look confusing. */
+  onStatusChange?: (status: { exporting: boolean; phase: ExportPhase; fraction: number }) => void;
 }
 
-export default function ExportPanel({ project, videoRef }: Props) {
-  const [phase, setPhase] = useState<"idle" | "recording" | "encoding" | "done" | "error">("idle");
+export default function ExportPanel({ project, videoRef, onStatusChange }: Props) {
+  const [phase, setPhase] = useState<ExportPhase>("idle");
   const [fraction, setFraction] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { checking: checkingAuth, showAuthModal, authRedirectTo, closeAuthModal, requireAuth } = useAuthGate();
+
+  function updatePhase(p: ExportPhase, f: number) {
+    setPhase(p);
+    setFraction(f);
+    onStatusChange?.({ exporting: p === "recording" || p === "encoding", phase: p, fraction: f });
+  }
 
   function handleExport() {
     requireAuth(`/editor/${project.meta.id}`, runExport);
@@ -29,8 +42,7 @@ export default function ExportPanel({ project, videoRef }: Props) {
 
     setError(null);
     setDownloadUrl(null);
-    setPhase("recording");
-    setFraction(0);
+    updatePhase("recording", 0);
 
     try {
       const theme = applyThemeOverrides(getTheme(project.themeId), project.customTheme);
@@ -43,17 +55,14 @@ export default function ExportPanel({ project, videoRef }: Props) {
         width: project.meta.width || 1080,
         height: project.meta.height || 1920,
         durationHint: project.meta.durationSec,
-        onProgress: (p, f) => {
-          setPhase(p);
-          setFraction(f);
-        },
+        onProgress: (p, f) => updatePhase(p, f),
       });
       setDownloadUrl(URL.createObjectURL(blob));
-      setPhase("done");
+      updatePhase("done", 1);
     } catch (err) {
       console.error("Export failed:", err);
       setError(describeExportError(err));
-      setPhase("error");
+      updatePhase("error", 0);
     }
   }
 
