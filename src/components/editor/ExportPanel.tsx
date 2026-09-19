@@ -54,7 +54,6 @@ export default function ExportPanel({ project, videoRef, onStatusChange }: Props
         theme,
         width: project.meta.width || 1080,
         height: project.meta.height || 1920,
-        fps: project.meta.fps || 30,
         durationHint: project.meta.durationSec,
         onProgress: (p, f) => updatePhase(p, f),
       });
