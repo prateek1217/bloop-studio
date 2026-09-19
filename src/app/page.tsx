@@ -8,6 +8,7 @@ import MobileNav from "@/components/landing/MobileNav";
 import ScrollyHowItWorks from "@/components/landing/ScrollyHowItWorks";
 import TypewriterHero from "@/components/landing/TypewriterHero";
 import LeadCaptureForm from "@/components/landing/LeadCaptureForm";
+import CircularFeatures from "@/components/landing/CircularFeatures";
 
 const TITLE = "Bloop Studio — #1 AI Subtitles Generator with Person Masking";
 const DESCRIPTION =
@@ -133,8 +134,8 @@ const STEPS: { n: string; title: string; body: string; visual: React.ReactNode }
     body: "Drag captions right on the preview, pick a theme, and export a polished MP4 — all processed client-side.",
     visual: (
       <Image
-        src="/screenshots/editor-timeline-v3.png"
-        alt="Bloop Studio's timeline, showing synced caption segments over a waveform"
+        src="/screenshots/editor-full-v4.png"
+        alt="Bloop Studio's editor: video preview with a bold caption theme applied, segment list, theme picker, and timeline"
         fill
         className="object-cover object-top"
       />
@@ -458,72 +459,29 @@ export default function LandingPage() {
               </p>
             </div>
           </Reveal>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f, i) => (
-              <Reveal
-                key={f.title}
-                delay={(i % 3) * 100}
-                direction="up"
-                className={f.large ? "sm:col-span-2 sm:row-span-2" : ""}
-              >
+          <CircularFeatures
+            features={FEATURES}
+            flagshipExtra={
+              <div className="relative mt-5 flex flex-col items-center overflow-hidden rounded-xl border border-white/10 bg-black/30 py-8">
                 <div
-                  className={`feature-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/25 ${
-                    f.large ? "sm:p-7" : ""
-                  }`}
-                  style={{ "--glow": f.glow } as React.CSSProperties}
-                >
-                  {/* Always-on color strip — gives every card a quiet hit of
-                      its own accent at rest, not just a flat gray box until hovered. */}
-                  <div className={`absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r opacity-70 ${f.accent}`} />
-                  {/* Soft corner glow in the feature's own accent — the thing
-                      that stops every card from reading as the same flat box. */}
-                  <div
-                    className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-30 ${f.accent}`}
-                  />
-                  <span className="absolute right-4 top-4 rounded-full bg-white/5 px-2 py-0.5 font-gabarito text-[10px] font-semibold text-white/30 transition-colors duration-300 group-hover:text-white/50">
-                    {String(i + 1).padStart(2, "0")}
+                  className="pointer-events-none absolute inset-0 opacity-20"
+                  style={{
+                    backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)",
+                    backgroundSize: "20px 20px",
+                  }}
+                />
+                <DepthDemo />
+                <div className="relative mt-5 flex items-center gap-4 text-[11px] font-medium uppercase tracking-wide text-neutral-500">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-violet-400" /> behind
                   </span>
-
-                  <div
-                    className={`relative flex items-center justify-center rounded-lg bg-gradient-to-br shadow-lg transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110 ${f.accent} ${
-                      f.large ? "h-11 w-11" : "h-9 w-9"
-                    }`}
-                  >
-                    {f.icon}
-                  </div>
-                  <h3 className={`relative mt-3.5 font-semibold text-white ${f.large ? "text-lg" : "text-sm"}`}>
-                    {f.title}
-                  </h3>
-                  <p
-                    className={`relative mt-2 leading-relaxed text-neutral-400 ${f.large ? "text-sm sm:text-base" : "text-sm"}`}
-                  >
-                    {f.body}
-                  </p>
-
-                  {f.large && (
-                    <div className="relative mt-6 flex flex-1 flex-col items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/30 py-10">
-                      <div
-                        className="pointer-events-none absolute inset-0 opacity-20"
-                        style={{
-                          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)",
-                          backgroundSize: "20px 20px",
-                        }}
-                      />
-                      <DepthDemo />
-                      <div className="relative mt-5 flex items-center gap-4 text-[11px] font-medium uppercase tracking-wide text-neutral-500">
-                        <span className="flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-violet-400" /> behind
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" /> in front
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" /> in front
+                  </span>
                 </div>
-              </Reveal>
-            ))}
-          </div>
+              </div>
+            }
+          />
         </div>
       </section>
 

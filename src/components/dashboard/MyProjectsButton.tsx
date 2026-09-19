@@ -28,7 +28,14 @@ export default function MyProjectsButton({
       <button onClick={handleClick} disabled={checking} className={className} suppressHydrationWarning>
         {checking ? "Checking…" : "My projects"}
       </button>
-      {showAuthModal && <AuthRequiredModal redirectTo={authRedirectTo} onClose={closeAuthModal} />}
+      {showAuthModal && (
+        <AuthRequiredModal
+          redirectTo={authRedirectTo}
+          onClose={closeAuthModal}
+          title="Log in to view your projects"
+          description="Create a free account or log in to access your personal projects."
+        />
+      )}
     </>
   );
 }
