@@ -34,6 +34,11 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   // the visitor actually has an account, so a logged-out visitor (or the
   // brief moment before the check resolves) still goes somewhere sensible.
   const [backHref, setBackHref] = useState("/");
+  // Export re-plays and records the live preview's own video element in real
+  // time (see exportVideo.ts) — seeking, editing captions, or navigating away
+  // mid-export would corrupt that capture, not just look confusing, so the
+  // whole editor locks while it's running.
+  const [exportStatus, setExportStatus] = useState({ exporting: false, phase: "idle" as string, fraction: 0 });
 
   useEffect(() => {
     loadProject(id);
@@ -89,7 +94,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         </div>
 
         <div className="w-28 shrink-0 sm:w-48">
-          <ExportPanel project={project} videoRef={videoRef} />
+          <ExportPanel project={project} videoRef={videoRef} onStatusChange={setExportStatus} />
         </div>
       </header>
 
@@ -171,7 +176,29 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           />
         </div>
       </div>
+
+      {exportStatus.exporting && <ExportBlockingOverlay phase={exportStatus.phase} fraction={exportStatus.fraction} />}
     </main>
+  );
+}
+
+/** Covers the whole editor (including the sticky header) so nothing can be
+ * clicked, scrubbed, or dragged while export is recording/encoding — see the
+ * comment on exportStatus above for why that's a correctness issue, not just
+ * a UX one. No close button; it clears itself once ExportPanel reports the
+ * phase has moved past recording/encoding. */
+function ExportBlockingOverlay({ phase, fraction }: { phase: string; fraction: number }) {
+  const label = phase === "encoding" ? "Encoding" : "Recording";
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-neutral-950/90 backdrop-blur-sm">
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-neutral-700 border-t-violet-500" />
+      <div className="text-center">
+        <p className="text-sm font-semibold text-white">
+          {label}… {Math.round(fraction * 100)}%
+        </p>
+        <p className="mt-1 text-xs text-neutral-400">Exporting your video — please don&apos;t close or edit anything until this finishes.</p>
+      </div>
+    </div>
   );
 }
 
