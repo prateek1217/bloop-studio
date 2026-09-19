@@ -119,7 +119,13 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
                 has nothing to fill against and collapses to 0. At `lg` the
                 flex row provides that height instead, so this reverts to fill. */}
             <div className="flex h-[60vh] items-center justify-center overflow-hidden sm:h-[65vh] lg:h-auto lg:min-h-0 lg:flex-1">
-              <VideoStage project={project} videoUrl={videoUrl} videoRef={videoRef} onTimeUpdate={setCurrentTime} />
+              <VideoStage
+                project={project}
+                videoUrl={videoUrl}
+                videoRef={videoRef}
+                onTimeUpdate={setCurrentTime}
+                isExporting={exportStatus.exporting}
+              />
             </div>
           </section>
 

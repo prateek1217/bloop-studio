@@ -14,6 +14,15 @@ interface Props {
   videoUrl: string;
   videoRef: React.RefObject<HTMLVideoElement | null>;
   onTimeUpdate: (t: number) => void;
+  /** exportVideo.ts drives this same <video> element by hand (play, wait for
+   * one requestVideoFrameCallback, pause) to capture frame-accurate output.
+   * This preview loop's own per-frame work — reading currentTime, compositing
+   * onto the preview canvas, and the React state updates that follow — was
+   * competing with that on the main thread, which could delay how quickly the
+   * export's pause() actually landed after a frame decoded, letting the video
+   * advance further than intended before it stopped. Freezing this loop's
+   * work while exporting removes that contention. */
+  isExporting?: boolean;
 }
 
 interface DragState {
@@ -34,11 +43,12 @@ interface DragState {
  * doubles as the player itself (play/pause, time readout, drag-to-reposition
  * the active subtitle) so the editor doesn't need separate controls below it.
  */
-export default function VideoStage({ project, videoUrl, videoRef, onTimeUpdate }: Props) {
+export default function VideoStage({ project, videoUrl, videoRef, onTimeUpdate, isExporting }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const compositorRef = useRef<Compositor | null>(null);
   const rafRef = useRef<number>(0);
+  const isExportingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -58,6 +68,13 @@ export default function VideoStage({ project, videoUrl, videoRef, onTimeUpdate }
   useEffect(() => {
     compositorRef.current = new Compositor();
   }, []);
+
+  // Read via a ref inside the draw loop below rather than a dependency, so
+  // toggling export doesn't tear down and restart the whole rAF loop/effect —
+  // it just changes what the next already-scheduled tick does.
+  useEffect(() => {
+    isExportingRef.current = isExporting ?? false;
+  }, [isExporting]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -91,6 +108,16 @@ export default function VideoStage({ project, videoUrl, videoRef, onTimeUpdate }
 
     function draw() {
       if (!video || !canvas || !ctx) return;
+      // exportVideo.ts is driving this exact <video> element by hand right
+      // now (play → wait for one decoded frame → pause, repeated per output
+      // frame) — staying off it entirely avoids adding any main-thread
+      // contention that could delay that pause() past the frame it meant to
+      // land on. Still reschedules so the preview resumes the instant export
+      // status flips back.
+      if (isExportingRef.current) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
+      }
       const t = video.currentTime;
       const segment = findActiveSegment(project.captions, t);
       const segmentWords = segment && project.transcript
